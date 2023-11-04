@@ -50,8 +50,8 @@ def change_volume():
 
 
 def is_double_tapped(first_tap_time) -> bool:
-    second_tap_handled = False
     inner_button_state = None
+    
     while True:
         second_tap_time = time.monotonic()
         time_dif = second_tap_time - first_tap_time
@@ -67,7 +67,6 @@ def is_double_tapped(first_tap_time) -> bool:
 
 
 def change_mute_or_playback_state():
-    global DOUBLE_TAP_TIME_LIMIT
     global encoder_button_state
     
     is_pressed = not encoder_button.value
