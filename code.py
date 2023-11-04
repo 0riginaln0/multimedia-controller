@@ -27,7 +27,7 @@ encoder_button_state = None
 
 # Global constants, States
 DOUBLE_TAP_TIME_LIMIT = 0.5 # in seconds
-WAS_PRESSED = 1
+WAS_PRESSED = True
 
 
 def change_volume():
