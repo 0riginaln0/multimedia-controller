@@ -78,9 +78,9 @@ def change_mute_or_playback_state():
     
     is_pressed = not button.value
     if is_pressed and button_state is None:
-        button_state = "was pressed"
+        button_state = WAS_PRESSED
     is_released = button.value
-    if is_released and button_state == "was pressed":
+    if is_released and button_state == WAS_PRESSED:
         first_tap_time = time.monotonic()
         detect_second_tap(first_tap_time)
         if button_mode == PLAY_PAUSE:
