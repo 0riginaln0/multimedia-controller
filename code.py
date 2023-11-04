@@ -29,7 +29,6 @@ WAS_PRESSED = 1
 # Global variables
 last_position = 0
 encoder_button_state = None
-encoder_button_mode = None
 
 # Global constants
 DOUBLE_TAP_TIME_LIMIT = 0.5 # in seconds
@@ -50,12 +49,10 @@ def change_volume():
     last_position = current_position
 
 
-def detect_second_tap(first_tap_time):
-    global encoder_button_mode
+def is_double_tapped(first_tap_time) -> bool:
     second_tap_handled = False
     inner_button_state = None
-    
-    while not second_tap_handled:
+    while True:
         second_tap_time = time.monotonic()
         time_dif = second_tap_time - first_tap_time
         
@@ -64,17 +61,14 @@ def detect_second_tap(first_tap_time):
             inner_button_state = WAS_PRESSED
         is_released = encoder_button.value
         if is_released and inner_button_state == WAS_PRESSED:
-            encoder_button_mode = MUTE_UNMUTE
-            second_tap_handled = True
+            return True
         if time_dif > DOUBLE_TAP_TIME_LIMIT:
-            encoder_button_mode = PLAY_PAUSE
-            second_tap_handled = True
+            return False
 
 
 def change_mute_or_playback_state():
     global DOUBLE_TAP_TIME_LIMIT
     global encoder_button_state
-    global encoder_button_mode
     
     is_pressed = not encoder_button.value
     if is_pressed and encoder_button_state is None:
@@ -82,11 +76,10 @@ def change_mute_or_playback_state():
     is_released = encoder_button.value
     if is_released and encoder_button_state == WAS_PRESSED:
         first_tap_time = time.monotonic()
-        detect_second_tap(first_tap_time)
-        if encoder_button_mode == PLAY_PAUSE:
-            cc.send(ConsumerControlCode.PLAY_PAUSE)
-        else:
+        if is_double_tapped(first_tap_time):
             cc.send(ConsumerControlCode.MUTE)
+        else:
+            cc.send(ConsumerControlCode.PLAY_PAUSE)
         encoder_button_state = None
 
 
