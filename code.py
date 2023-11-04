@@ -32,6 +32,7 @@ button_mode = None
 # Global constants
 DOUBLE_TAP_TIME_LIMIT = 0.5
 
+
 def change_volume():
     global last_position
     current_position = encoder.position
@@ -43,37 +44,38 @@ def change_volume():
     # Прокрутили против часовой
     elif position_change < 0:
         for _ in range(-position_change):
-            cc.send(ConsumerControlCode.VOLUME_DECREMENT)      
+            cc.send(ConsumerControlCode.VOLUME_DECREMENT)
     last_position = current_position
 
 
 def detect_second_tap(first_tap_time):
     global button_mode
-    
+
     second_tap_handled = False
     inner_button_state = None
-    while(not second_tap_handled):
-            second_tap_time = time.monotonic()
-            time_dif = second_tap_time - first_tap_time
-            # Нажата (button.value = 0)
-            if not button.value:
-                inner_button_state = "pressed"
-            # Отпущена (button.value = 1)
-            if button.value and inner_button_state == "pressed":
-                button_mode = MUTE_UNMUTE
-                second_tap_handled = True
-            # Время для двойного нажатия прошло
-            if time_dif > DOUBLE_TAP_TIME_LIMIT:
-                button_mode = PLAY_PAUSE
-                second_tap_handled = True
+    while (not second_tap_handled):
+        second_tap_time = time.monotonic()
+        time_dif = second_tap_time - first_tap_time
+        # Нажата (button.value = 0)
+        if not button.value:
+            inner_button_state = "pressed"
+        # Отпущена (button.value = 1)
+        if button.value and inner_button_state == "pressed":
+            button_mode = MUTE_UNMUTE
+            second_tap_handled = True
+        # Время для двойного нажатия прошло
+        if time_dif > DOUBLE_TAP_TIME_LIMIT:
+            button_mode = PLAY_PAUSE
+            second_tap_handled = True
+
 
 def change_mute_playback_state():
     global button_mode
     global DOUBLE_TAP_TIME_LIMIT
     global button_state
-    
+
     # Check if button pressed
-    # Нажата (button.value = 0) 
+    # Нажата (button.value = 0)
     if not button.value and button_state is None:
         button_state = "pressed"
 
@@ -87,8 +89,8 @@ def change_mute_playback_state():
         else:
             cc.send(ConsumerControlCode.MUTE)
         button_state = None
-        
+
+
 while True:
     change_volume()
     change_mute_playback_state()
-
