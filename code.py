@@ -21,17 +21,16 @@ encoder_button.pull = digitalio.Pull.UP
 # HID
 cc = ConsumerControl(usb_hid.devices)
 
-# States
-MUTE_UNMUTE = 0
-PLAY_PAUSE = 1
-WAS_PRESSED = 1
+
+
 
 # Global variables
 last_position = 0
 encoder_button_state = None
 
-# Global constants
+# Global constants, States
 DOUBLE_TAP_TIME_LIMIT = 0.5 # in seconds
+WAS_PRESSED = 1
 
 def change_volume():
     global last_position
