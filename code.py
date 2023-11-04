@@ -48,13 +48,12 @@ def change_volume():
 def is_double_tapped(first_tap_time) -> bool:
     inner_button_state = None
     while True:
-        second_tap_time = time.monotonic()
-        time_dif = second_tap_time - first_tap_time
+        time_dif = time.monotonic() - first_tap_time
         is_pressed = not encoder_button.value
         if is_pressed and inner_button_state is None:
             inner_button_state = WAS_PRESSED
         is_released = encoder_button.value
-        if is_released and inner_button_state == WAS_PRESSED:
+        if inner_button_state == WAS_PRESSED and is_released:
             return True
         if time_dif > DOUBLE_TAP_TIME_LIMIT:
             return False
@@ -66,7 +65,7 @@ def change_mute_or_playback_state():
     if is_pressed and encoder_button_state is None:
         encoder_button_state = WAS_PRESSED
     is_released = encoder_button.value
-    if is_released and encoder_button_state == WAS_PRESSED:
+    if encoder_button_state == WAS_PRESSED and is_released:
         first_tap_time = time.monotonic()
         if is_double_tapped(first_tap_time):
             cc.send(ConsumerControlCode.MUTE)
