@@ -17,7 +17,6 @@ sw = board.GP14
 button = digitalio.DigitalInOut(sw)
 button.direction = digitalio.Direction.INPUT
 button.pull = digitalio.Pull.UP
-button_state = None
 
 # HID
 cc = ConsumerControl(usb_hid.devices)
@@ -28,8 +27,9 @@ PLAY_PAUSE = 1
 WAS_PRESSED = 1
 
 # Global variables
-button_mode = None
 last_position = 0
+button_state = None
+button_mode = None
 
 # Global constants
 DOUBLE_TAP_TIME_LIMIT = 0.5 # in seconds
