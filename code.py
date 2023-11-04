@@ -21,9 +21,6 @@ encoder_button.pull = digitalio.Pull.UP
 # HID
 cc = ConsumerControl(usb_hid.devices)
 
-
-
-
 # Global variables
 last_position = 0
 encoder_button_state = None
@@ -32,11 +29,11 @@ encoder_button_state = None
 DOUBLE_TAP_TIME_LIMIT = 0.5 # in seconds
 WAS_PRESSED = 1
 
+
 def change_volume():
     global last_position
     current_position = encoder.position
     position_change = current_position - last_position
-    
     # Clockwise rotation
     if position_change > 0:
         for _ in range(position_change):
@@ -50,11 +47,9 @@ def change_volume():
 
 def is_double_tapped(first_tap_time) -> bool:
     inner_button_state = None
-    
     while True:
         second_tap_time = time.monotonic()
         time_dif = second_tap_time - first_tap_time
-        
         is_pressed = not encoder_button.value
         if is_pressed and inner_button_state is None:
             inner_button_state = WAS_PRESSED
@@ -67,7 +62,6 @@ def is_double_tapped(first_tap_time) -> bool:
 
 def change_mute_or_playback_state():
     global encoder_button_state
-    
     is_pressed = not encoder_button.value
     if is_pressed and encoder_button_state is None:
         encoder_button_state = WAS_PRESSED
