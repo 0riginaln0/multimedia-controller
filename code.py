@@ -29,16 +29,19 @@ previous_scan_button.direction = digitalio.Direction.INPUT
 previous_scan_button.pull = digitalio.Pull.UP
 
 # HID
-encoder_cc = ConsumerControl(usb_hid.devices)
+cc = ConsumerControl(usb_hid.devices)
 
 # Global variables
 encoder_last_position = 0
 encoder_button_state = None
-scan_button_state = None
+previous_button_state = None
+next_button_state = None
 
 # Global constants, States
 DOUBLE_TAP_TIME_LIMIT = 0.5 # in seconds
 ENCODER_WAS_PRESSED = True
+NEXT_BUTTON_WAS_PRESSED = True
+PREV_BUTTON_WAS_PRESSED = True
 
 
 def encoder_change_volume():
@@ -48,11 +51,11 @@ def encoder_change_volume():
     # Clockwise rotation
     if position_change > 0:
         for _ in range(position_change):
-            encoder_cc.send(ConsumerControlCode.VOLUME_INCREMENT)
+            cc.send(ConsumerControlCode.VOLUME_INCREMENT)
     # Counterclockwise rotation
     elif position_change < 0:
         for _ in range(-position_change):
-            encoder_cc.send(ConsumerControlCode.VOLUME_DECREMENT)            
+            cc.send(ConsumerControlCode.VOLUME_DECREMENT)            
     encoder_last_position = current_position
 
 
@@ -79,34 +82,37 @@ def encoder_change_mute_or_playback_state():
     if encoder_button_state == ENCODER_WAS_PRESSED and is_released:
         first_tap_time = time.monotonic()
         if encoder_is_double_tapped(first_tap_time):
-            encoder_cc.send(ConsumerControlCode.MUTE)
+            cc.send(ConsumerControlCode.MUTE)
         else:
-            encoder_cc.send(ConsumerControlCode.PLAY_PAUSE)
+            cc.send(ConsumerControlCode.PLAY_PAUSE)
         encoder_button_state = None
         
 
 def buttons_previous_next_track():
-    global scan_button_state
+    global next_button_state
+    global previous_button_state
     is_next_pressed = not next_scan_button.value
     is_previous_pressed = not previous_scan_button.value
 
-    if is_next_pressed and scan_button_state is None:
-        scan_button_state = ENCODER_WAS_PRESSED
-    elif is_previous_pressed and scan_button_state is None:
-        scan_button_state = not ENCODER_WAS_PRESSED  # Toggle between next and previous
+    if is_next_pressed and next_button_state is None:
+        next_button_state = NEXT_BUTTON_WAS_PRESSED
+    elif is_previous_pressed and previous_button_state is None:
+        previous_button_state = PREV_BUTTON_WAS_PRESSED
 
     is_next_released = next_scan_button.value
     is_previous_released = previous_scan_button.value
 
-    if scan_button_state is not None and (is_next_released or is_previous_released):
-        if scan_button_state == ENCODER_WAS_PRESSED:
-            encoder_cc.send(ConsumerControlCode.SCAN_NEXT_TRACK)
-        else:
-            encoder_cc.send(ConsumerControlCode.SCAN_PREVIOUS_TRACK)
+    if (next_button_state is not None and is_next_released) or (previous_button_state is not None and is_previous_released):  # Fix the variable name here
+        if next_button_state == NEXT_BUTTON_WAS_PRESSED:
+            cc.send(ConsumerControlCode.SCAN_NEXT_TRACK)
+        elif previous_button_state == PREV_BUTTON_WAS_PRESSED:
+            cc.send(ConsumerControlCode.SCAN_PREVIOUS_TRACK)
 
-        scan_button_state = None
+        next_button_state = None
+        previous_button_state = None
 
 while True:
     encoder_change_volume()
     encoder_change_mute_or_playback_state()
     buttons_previous_next_track()
+
