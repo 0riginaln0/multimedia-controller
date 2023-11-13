@@ -92,7 +92,7 @@ def next_track_button():
         next_button_state = WAS_PRESSED
     is_next_released = next_scan_button.value
     if next_button_state == WAS_PRESSED and is_next_released:
-        cc.send(ConsumerControlCode.SCAN_PREVIOUS_TRACK)
+        cc.send(ConsumerControlCode.SCAN_NEXT_TRACK)
         next_button_state = None
 
 
@@ -103,7 +103,7 @@ def previous_track_button():
         previous_button_state = WAS_PRESSED
     is_previous_released = previous_scan_button.value
     if previous_button_state == WAS_PRESSED and is_previous_released:
-        cc.send(ConsumerControlCode.SCAN_NEXT_TRACK)
+        cc.send(ConsumerControlCode.SCAN_PREVIOUS_TRACK)
         previous_button_state = None
 
 
