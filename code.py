@@ -60,14 +60,14 @@ lcd = lcd.LCD(i2c, num_rows=2, num_cols=16)
 lcd.set_display_enabled(True)
 
 
-last_blink_time = -1  
-lcd_has_value = False
-lcd_value = 'fdffd'
+last_blink_time = -1  	#Время постановки ответа
+lcd_has_value = False	#Флаг наличия заготовленного ответа
+lcd_value = ' '		#Значение ответа
 
-is_answer = False
-is_waiting = True
-is_thinking = False
-wait_lcd_duration = 2
+is_answer = False	#Находится в стадии демонстрации ответа
+is_waiting = True	#Находится в стадии ожидания
+is_thinking = False	#Находится в стадии подбора ответа
+wait_lcd_duration = 0	#Время подбора ответа (ставится случайным образом)
 
 def encoder_change_volume():
     global encoder_last_position
@@ -194,24 +194,34 @@ def lcd_animate_work():
     global last_blink_time
     
     BLINK_ON_DURATION = 7
-    
+
+    # Флаги используются для того, чтобы дисплей не обновлялся постоянно
+    # Проверка, поставил ли шар какое-нибудь значение
+    # При срабатывании шара все флаги is_... равны false, начинается обработка
+    # Обработка идёт начиная с else
     if lcd_has_value:
+	#Демонстрация ответа закончилась, очищаем дисплей и переходим в режим ожидания.
         if time.monotonic() - last_blink_time >= BLINK_ON_DURATION + wait_lcd_duration:          
             lcd.clear()
             lcd_has_value = False
             is_answer = False
+
+	#По истечении времени подбора ответа начинается состояние демонстрации ответа
         elif time.monotonic() - last_blink_time >= wait_lcd_duration:         
             if not is_answer:
                 lcd.clear()
                 lcd.print(lcd_value)
                 is_answer = True
                 is_thinking = False
+	#Переход в состояние "подбора ответа"
         else:
             if not is_thinking:
                 lcd.clear()
                 lcd.print("I'm thinking..\nWait...")
                 is_thinking = True
                 is_waiting = False
+
+    #Состояние ожидания активации шара
     else:
         if not is_waiting:
             lcd.clear()
